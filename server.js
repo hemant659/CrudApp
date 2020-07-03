@@ -48,6 +48,15 @@ app.get('/api/customers/:id',(req, res) => {
     res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
   });
 });
+
+app.post('/api/customers',(req, res) => {
+  let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email};
+  let sql = "INSERT INTO customers SET ?";
+  let query = con.query(sql, data,(err, results) => {
+    if(err) throw err;
+    res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+  });
+});
 // define a root route
 app.get('/', (req, res) => {
   res.send("Hello World");
