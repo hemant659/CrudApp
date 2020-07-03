@@ -18,19 +18,41 @@ var con = mysql.createConnection({
   database: "node_mysql_crud_db"
 });
 
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected!");
-  var sql = "INSERT INTO customers (name, address, contact, email) VALUES ('Alex', 'Highway 37', '9348858757', 'alex@gmail.com')";
-  con.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("1 record inserted");
+con.connect((err) =>{
+  if(err) throw err;
+  console.log('Mysql Connected...');
+});
+// con.connect(function(err) {
+//   if (err) throw err;
+//   console.log("Connected!");
+//   var sql = "INSERT INTO customers (name, address, contact, email) VALUES ('Alex', 'Highway 37', '9348858757', 'alex@gmail.com')";
+//   con.query(sql, function (err, result) {
+//     if (err) throw err;
+//     console.log("1 record inserted");
+//   });
+// });
+
+app.get('/api/customers',(req, res) => {
+  let sql = "SELECT * FROM customers";
+  let query = con.query(sql, (err, results) => {
+    if(err) throw err;
+    res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+  });
+});
+
+app.get('/api/customers/:id',(req, res) => {
+
+  let sql = "SELECT * FROM customers WHERE email="+"'"+req.params.id+"'";
+  let query = con.query(sql, (err, results) => {
+    if(err) throw err;
+    res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
   });
 });
 // define a root route
 app.get('/', (req, res) => {
   res.send("Hello World");
 });
+
 // listen for requests
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
