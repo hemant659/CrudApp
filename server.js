@@ -57,6 +57,22 @@ app.post('/api/customers',(req, res) => {
     res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
   });
 });
+
+app.put('/api/customers/:id',(req, res) => {
+  let sql = "UPDATE customers SET name='"+req.body.name+"', address='"+req.body.address+"', contact='"+req.body.contact+"', email='"+req.body.email+"' WHERE email='"+req.params.id+"'";
+  let query = con.query(sql, (err, results) => {
+    if(err) throw err;
+    res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+  });
+});
+
+app.delete('/api/customers/:id',(req, res) => {
+  let sql = "DELETE FROM customers WHERE email="+"'"+req.params.id+"'";
+  let query = con.query(sql, (err, results) => {
+    if(err) throw err;
+      res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+  });
+});
 // define a root route
 app.get('/', (req, res) => {
   res.send("Hello World");
