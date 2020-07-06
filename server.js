@@ -63,7 +63,6 @@ function validateUser(user){
 // }
 
 app.get('/api/customers',(req, res) => {
-    console.log("bad request");
   let sql = "SELECT * FROM customers";
   let query = con.query(sql, (err, results) => {
     if(err) throw err;
@@ -83,22 +82,56 @@ app.get('/api/customers/:id',(req, res) => {
 });
 
 app.post('/api/customers',(req, res) => {
-  let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email};
-  // let sql =
-  let sql = "INSERT INTO customers SET ?";
-  let query = con.query(sql, data,(err, results) => {
-    if(err) throw err;
-    res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
-  });
+    let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email};
+    let checkIfEmailExists = "SELECT * from customers WHERE email=?";
+    let num;
+    let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
+
+        if(err) throw err;
+        num=results.length;
+        console.log(num);
+        console.log(typeof(num));
+        if(num===0)
+        {
+            console.log("for 0");
+            let sql = "INSERT INTO customers SET ?";
+            let query = con.query(sql, data,(err, result) => {
+                if(err) throw err;
+                res.send(JSON.stringify({"status": 200, "error": null, "response": result}));
+            });
+        }
+        else
+        {
+            console.log("for >0");
+            res.send("Email already exists");
+        }
+    });
 });
 
 app.put('/api/customers/:id',(req, res) => {
-  // let sql = "UPDATE customers SET name='"+req.body.name+"', address='"+req.body.address+"', contact='"+req.body.contact+"', email='"+req.body.email+"' WHERE email='"+req.params.id+"'";
-  let sql = "UPDATE customers SET name=?, address=?, contact=?, email=? WHERE email=?";
-  let query = con.query(sql, [req.body.name,req.body.address,req.body.contact,req.body.email,req.params.id] ,
-      function(err, results){
-    if(err) throw err;
-    res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+  let data = [req.body.name, req.body.address, req.body.contact, req.body.email, req.params.id];
+  let checkIfEmailExists = "SELECT * from customers WHERE email=?";
+  let num;
+  let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
+
+      if(err) throw err;
+      num=results.length;
+      console.log(num);
+      console.log(typeof(num));
+      if(num===0)
+      {
+          console.log("for 0");
+          let sql = "UPDATE customers SET name=?, address=?, contact=?, email=? WHERE email=?";
+          let query = con.query(sql, data,(err, result) => {
+              if(err) throw err;
+              res.send(JSON.stringify({"status": 200, "error": null, "response": result}));
+          });
+      }
+      else
+      {
+          console.log("for >0");
+          res.send("Email already exists");
+      }
   });
 });
 
@@ -118,7 +151,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
-//check if email already exists
-//email validation
-//concatenation of email
-//database connection in different file
