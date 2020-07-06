@@ -48,19 +48,6 @@ function validateUser(user){
     });
     return schema.validate(user);
 }
-// schema.validate({ name: 'abc', contact: '578934848sd' });
-// var user = { name: 'alex123', contact: '5786677', email: "alexgmail.com" };
-// response = validateUser(user)
-//
-// if(response.error)
-// {
-//     // console.log(response.error.details);
-//     // console.log("not validated");
-// }
-// else
-// {
-//     console.log("Validated Data");
-// }
 
 app.get('/api/customers',(req, res) => {
   let sql = "SELECT * FROM customers";
@@ -84,6 +71,9 @@ app.get('/api/customers/:id',(req, res) => {
 app.post('/api/customers',(req, res) => {
     let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email};
     let checkIfEmailExists = "SELECT * from customers WHERE email=?";
+    var user = { name: req.body.name, contact: req.body.contact, email: req.body.email };
+    response = validateUser(user);
+
     let num;
     let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
 
@@ -91,7 +81,11 @@ app.post('/api/customers',(req, res) => {
         num=results.length;
         console.log(num);
         console.log(typeof(num));
-        if(num===0)
+        if(response.error)
+        {
+            res.send(response.error.details);
+        }
+        else if(num===0)
         {
             console.log("for 0");
             let sql = "INSERT INTO customers SET ?";
@@ -111,6 +105,8 @@ app.post('/api/customers',(req, res) => {
 app.put('/api/customers/:id',(req, res) => {
   let data = [req.body.name, req.body.address, req.body.contact, req.body.email, req.params.id];
   let checkIfEmailExists = "SELECT * from customers WHERE email=?";
+  var user = { name: req.body.name, contact: req.body.contact, email: req.body.email };
+  response = validateUser(user);
   let num;
   let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
 
@@ -118,7 +114,11 @@ app.put('/api/customers/:id',(req, res) => {
       num=results.length;
       console.log(num);
       console.log(typeof(num));
-      if(num===0)
+      if(response.error)
+      {
+          res.send(response.error.details);
+      }
+      else if(num===0)
       {
           console.log("for 0");
           let sql = "UPDATE customers SET name=?, address=?, contact=?, email=? WHERE email=?";
