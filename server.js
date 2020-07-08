@@ -88,7 +88,6 @@ app.post('/api/customers',(req, res) => {
         });
     });
     p1.then(function(results){
-        // if(err) throw err;
         num=results.length;
         // console.log(num);
         // console.log(typeof(num));
