@@ -23,22 +23,13 @@ con.connect((err) =>{
   if(err) throw err;
   console.log('Mysql Connected...');
 });
-// con.connect(function(err) {
-//   if (err) throw err;
-//   console.log("Connected!");
-//   var sql = "INSERT INTO customers (name, address, contact, email) VALUES ('Alex', 'Highway 37', '9348858757', 'alex@gmail.com')";
-//   con.query(sql, function (err, result) {
-//     if (err) throw err;
-//     console.log("1 record inserted");
-//   });
-// });
+
 function validateUser(user){
     const schema = Joi.object({
         name: Joi.string()
             .alphanum()
             .min(3)
-            .max(30)
-            .required(),
+            .max(30),
 
         contact: Joi.string()
             .pattern(new RegExp('^[0-9]{7,11}$')),
@@ -50,22 +41,30 @@ function validateUser(user){
 }
 
 app.get('/api/customers',(req, res) => {
-  let sql = "SELECT * FROM customers";
-  let query = con.query(sql, (err, results) => {
-    if(err) throw err;
-    res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
-  });
+
+    let sql = "SELECT * FROM customers";
+    let query = con.query(sql, (err, results) => {
+        if(err) throw err;
+        res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+    });
 });
 
 app.get('/api/customers/:id',(req, res) => {
 
-    // let sql = "SELECT * FROM customers WHERE email="+"'"+req.params.id+"'";
-    let sql = "SELECT * FROM customers WHERE email=?";
-    let query = con.query(sql,[
-        req.params.id], function(err, results){
-        if(err) throw err;
-        res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
-    });
+    var user = { email: req.params.id };
+    response = validateUser(user);
+    if(response.error){
+        res.send(response.error.details);
+    }
+    else
+    {
+        let sql = "SELECT * FROM customers WHERE email=?";
+        let query = con.query(sql,[
+            req.params.id], function(err, results){
+            if(err) throw err;
+            res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+        });
+    }
 });
 
 app.post('/api/customers',(req, res) => {
@@ -115,44 +114,65 @@ app.post('/api/customers',(req, res) => {
 });
 
 app.put('/api/customers/:id',(req, res) => {
-  let data = [req.body.name, req.body.address, req.body.contact, req.body.email, req.params.id];
-  let checkIfEmailExists = "SELECT * from customers WHERE email=?";
-  var user = { name: req.body.name, contact: req.body.contact, email: req.body.email };
-  response = validateUser(user);
-  let num;
-  let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
 
-      if(err) throw err;
-      num=results.length;
-      console.log(num);
-      console.log(typeof(num));
-      if(response.error)
-      {
-          res.send(response.error.details);
-      }
-      else if(num===0)
-      {
-          console.log("for 0");
-          let sql = "UPDATE customers SET name=?, address=?, contact=?, email=? WHERE email=?";
-          let query = con.query(sql, data,(err, result) => {
-              if(err) throw err;
-              res.send(JSON.stringify({"status": 200, "error": null, "response": result}));
-          });
-      }
-      else
-      {
-          console.log("for >0");
-          res.send("Email already exists");
-      }
-  });
+    let data = [req.body.name, req.body.address, req.body.contact, req.body.email, req.params.id];
+    let checkIfEmailExists = "SELECT * from customers WHERE email=?";
+    var user = { name: req.body.name, contact: req.body.contact, email: req.body.email };
+    response = validateUser(user);
+    let num;
+
+    let p1 = new Promise(function(resolve,reject){
+        let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(results);
+            }
+        });
+    });
+    p1.then(function(results){
+        num=results.length;
+        // console.log(num);
+        // console.log(typeof(num));
+
+        if(response.error){
+            res.send(response.error.details);
+        }
+        else if(num===0)
+        {
+            console.log("for 0");
+            let sql = "UPDATE customers SET name=?, address=?, contact=?, email=? WHERE email=?";
+            let query = con.query(sql, data,(err, result) => {
+                if(err) throw err;
+                res.send(JSON.stringify({"status": 200, "error": null, "response": result}));
+            });
+        }
+        else
+        {
+            console.log("for >0");
+            res.send("Email already exists");
+        }
+    },function(err){
+        console.log(err);
+    });
 });
 
 app.delete('/api/customers/:id',(req, res) => {
-  let sql = "DELETE FROM customers WHERE email=?";
-  let query = con.query(sql, [req.params.id], (err, results) => {
-    if(err) throw err;
-      res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
-  });
+
+    var user = { email: req.body.email };
+    response = validateUser(user);
+    if(response.error){
+        res.send(response.error.details);
+    }
+    else
+    {
+        let sql = "DELETE FROM customers WHERE email=?";
+        let query = con.query(sql, [req.params.id], (err, results) => {
+            if(err) throw err;
+            res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+        });
+    }
 });
 // define a root route
 app.get('/', (req, res) => {
