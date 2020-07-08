@@ -1,16 +1,7 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+'use strict';
+
 const mysql = require('mysql');
 const Joi = require('@hapi/joi');
-
-const app = express();
-// Setup server port
-const port = process.env.PORT || 5000;
-
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
-
-
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -19,10 +10,9 @@ var con = mysql.createConnection({
   database: "node_mysql_crud_db"
 });
 
-con.connect((err) =>{
-  if(err) throw err;
-  console.log('Mysql Connected...');
-});
+function getDogs(req, res) {
+    res.json(dogs);
+}
 
 function validateUser(user){
     const schema = Joi.object({
@@ -40,19 +30,19 @@ function validateUser(user){
     return schema.validate(user);
 }
 
-app.get('/api/customers',(req, res) => {
+function getAllCustomers(req, res){
 
     let sql = "SELECT * FROM customers";
     let query = con.query(sql, (err, results) => {
         if(err) throw err;
         res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
     });
-});
+}
 
-app.get('/api/customers/:id',(req, res) => {
+function getCustomerWithID(req, res){
 
     var user = { email: req.params.id };
-    response = validateUser(user);
+    let response = validateUser(user);
     if(response.error){
         res.send(response.error.details);
     }
@@ -65,14 +55,14 @@ app.get('/api/customers/:id',(req, res) => {
             res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
         });
     }
-});
+}
 
-app.post('/api/customers',(req, res) => {
+function createNewUser(req, res){
 
     let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email};
     let checkIfEmailExists = "SELECT * from customers WHERE email=?";
     var user = { name: req.body.name, contact: req.body.contact, email: req.body.email };
-    response = validateUser(user);
+    let response = validateUser(user);
     let num;
 
 
@@ -109,16 +99,16 @@ app.post('/api/customers',(req, res) => {
             res.send("Email already exists");
         }
     },function(err){
-        console.log(err);
+        res.send(err);
     });
-});
+}
 
-app.put('/api/customers/:id',(req, res) => {
+function updateUser(req, res){
 
     let data = [req.body.name, req.body.address, req.body.contact, req.body.email, req.params.id];
     let checkIfEmailExists = "SELECT * from customers WHERE email=?";
     var user = { name: req.body.name, contact: req.body.contact, email: req.body.email };
-    response = validateUser(user);
+    let response = validateUser(user);
     let num;
 
     let p1 = new Promise(function(resolve,reject){
@@ -156,12 +146,11 @@ app.put('/api/customers/:id',(req, res) => {
     },function(err){
         console.log(err);
     });
-});
-
-app.delete('/api/customers/:id',(req, res) => {
+}
+function deleteUser(req, res) {
 
     var user = { email: req.body.email };
-    response = validateUser(user);
+    let response = validateUser(user);
     if(response.error){
         res.send(response.error.details);
     }
@@ -173,16 +162,16 @@ app.delete('/api/customers/:id',(req, res) => {
             res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
         });
     }
-});
-// define a root route
-app.get('/', (req, res) => {
+}
+function homeRoute(req, res){
   res.send("Hello World");
-});
+}
 
-// listen for requests
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
-});
-//validate input
-//controller file
-//callback hell
+module.exports = {
+    getDogs: getDogs,
+	getAllCustomers: getAllCustomers,
+	getCustomerWithID: getCustomerWithID,
+	createNewUser: createNewUser,
+	updateUser: updateUser,
+	deleteUser: deleteUser
+};
