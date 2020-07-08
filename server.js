@@ -69,20 +69,31 @@ app.get('/api/customers/:id',(req, res) => {
 });
 
 app.post('/api/customers',(req, res) => {
+
     let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email};
     let checkIfEmailExists = "SELECT * from customers WHERE email=?";
     var user = { name: req.body.name, contact: req.body.contact, email: req.body.email };
     response = validateUser(user);
-
     let num;
-    let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
 
-        if(err) throw err;
+
+    let p1 = new Promise(function(resolve,reject){
+        let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(results);
+            }
+        });
+    });
+    p1.then(function(results){
+        // if(err) throw err;
         num=results.length;
-        console.log(num);
-        console.log(typeof(num));
-        if(response.error)
-        {
+        // console.log(num);
+        // console.log(typeof(num));
+
+        if(response.error){
             res.send(response.error.details);
         }
         else if(num===0)
@@ -99,6 +110,8 @@ app.post('/api/customers',(req, res) => {
             console.log("for >0");
             res.send("Email already exists");
         }
+    },function(err){
+        console.log(err);
     });
 });
 
@@ -151,3 +164,6 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
+//validate input
+//controller file
+//callback hell
