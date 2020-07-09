@@ -4,20 +4,72 @@ const mysql = require('mysql');
 // const Joi = require('@hapi/joi');
 const validate = require('../../validator/customers');
 
-var con = mysql.createConnection({
+// var con = mysql.createConnection({
+//   host: "localhost",
+//   user: "root",
+//   password: "HK77@mysql#",
+//   database: "node_mysql_crud_db"
+// });
+var con  = mysql.createPool({
+  connectionLimit : 10,
   host: "localhost",
   user: "root",
   password: "HK77@mysql#",
-  database: "node_mysql_crud_db"
+  database: "node_mysql_crud_db",
+  multipleStatements: true
 });
 
 function getAllCustomers(req, res){
 
-    let sql = "SELECT * FROM customers";
-    let query = con.query(sql, (err, results) => {
-        if(err) throw err;
-        res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
-    });
+    let sql="";
+    let email = req.query.search;
+    let limit= parseInt(req.query.limit);
+    let offset = parseInt(req.query.offset);
+    let data=[],user;
+    if(email)
+    {
+        user = { email: email };
+        if(limit)
+        {
+            sql = "SELECT * FROM customers WHERE email=? LIMIT ? OFFSET ?";
+            data.push(email);
+            data.push(limit);
+            data.push(offset);
+        }
+        else
+        {
+            sql = "SELECT * FROM customers WHERE email=?";
+            data.push(email);
+        }
+    }
+    else
+    {
+        if(limit)
+        {
+            sql = "SELECT * FROM customers LIMIT ? OFFSET ?";
+            data.push(limit);
+            data.push(offset);
+        }
+        else
+        {
+            sql = "SELECT * FROM customers";
+        }
+        // sql = "SELECT * FROM customers";
+    }
+    let response = validate.validateUser(user);
+    console.log(sql);
+    console.log(data);
+    if(response.error)
+    {
+        res.send(response.error.details);
+    }
+    else
+    {
+        let query = con.query(sql, data, (err, results) => {
+            if(err) throw err;
+            res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+        });
+    }
 }
 
 function getCustomerWithID(req, res){
