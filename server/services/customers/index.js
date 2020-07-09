@@ -1,7 +1,8 @@
 'use strict';
 
 const mysql = require('mysql');
-const Joi = require('@hapi/joi');
+// const Joi = require('@hapi/joi');
+const validate = require('../../validator/customers');
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -9,26 +10,6 @@ var con = mysql.createConnection({
   password: "HK77@mysql#",
   database: "node_mysql_crud_db"
 });
-
-function getDogs(req, res) {
-    res.json(dogs);
-}
-
-function validateUser(user){
-    const schema = Joi.object({
-        name: Joi.string()
-            .alphanum()
-            .min(3)
-            .max(30),
-
-        contact: Joi.string()
-            .pattern(new RegExp('^[0-9]{7,11}$')),
-
-        email: Joi.string()
-            .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
-    });
-    return schema.validate(user);
-}
 
 function getAllCustomers(req, res){
 
@@ -42,7 +23,7 @@ function getAllCustomers(req, res){
 function getCustomerWithID(req, res){
 
     var user = { email: req.params.id };
-    let response = validateUser(user);
+    let response = validate.validateUser(user);
     if(response.error){
         res.send(response.error.details);
     }
@@ -62,7 +43,7 @@ function createNewUser(req, res){
     let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email};
     let checkIfEmailExists = "SELECT * from customers WHERE email=?";
     var user = { name: req.body.name, contact: req.body.contact, email: req.body.email };
-    let response = validateUser(user);
+    let response = validate.validateUser(user);
     let num;
 
 
@@ -108,7 +89,7 @@ function updateUser(req, res){
     let data = [req.body.name, req.body.address, req.body.contact, req.body.email, req.params.id];
     let checkIfEmailExists = "SELECT * from customers WHERE email=?";
     var user = { name: req.body.name, contact: req.body.contact, email: req.body.email };
-    let response = validateUser(user);
+    let response = validate.validateUser(user);
     let num;
 
     let p1 = new Promise(function(resolve,reject){
@@ -150,7 +131,7 @@ function updateUser(req, res){
 function deleteUser(req, res) {
 
     var user = { email: req.body.email };
-    let response = validateUser(user);
+    let response = validate.validateUser(user);
     if(response.error){
         res.send(response.error.details);
     }
@@ -168,7 +149,6 @@ function homeRoute(req, res){
 }
 
 module.exports = {
-    getDogs: getDogs,
 	getAllCustomers: getAllCustomers,
 	getCustomerWithID: getCustomerWithID,
 	createNewUser: createNewUser,
