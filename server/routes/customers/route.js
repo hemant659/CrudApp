@@ -2,7 +2,7 @@
 
 const
     express = require('express'),
-    customerService = require('../../../services/customers');
+    customerService = require('../../controllers/customers/controller.js');
 
 let router = express.Router();
 

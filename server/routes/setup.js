@@ -1,7 +1,7 @@
 'use strict';
 
 const
-    apiRoute = require('./apis');
+    apiRoute = require('./customers/route.js');
 
 
 function init(server) {
@@ -14,7 +14,7 @@ function init(server) {
         res.redirect('/home');
     });
 
-    server.use('/api', apiRoute);
+    server.use('/api/customers', apiRoute);
 }
 
 module.exports = {
