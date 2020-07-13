@@ -12,8 +12,7 @@ const agenda = new Agenda({db: {address: mongoConnectionString}});
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-// const accountSid = 'AC54fc7bcbea0dfb085ea0f3982b2f705c';
-// const authToken = '4b747c036359cd8ec221c8f720ebac59';
+
 const client = require('twilio')(accountSid, authToken);
 
 function makeDBconn(){
