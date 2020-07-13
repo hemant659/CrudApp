@@ -5,6 +5,7 @@ const validate = require('../../validator/customers/validator.js');
 const service = require('../../services/customers/service.js');
 
 var con = service.makeDBconn();
+service.startMongoDBConn();
 function getAllCustomers(req, res){
 
     let sql="";
@@ -103,6 +104,7 @@ function createNewUser(req, res){
         else if(num===0)
         {
             console.log("for 0");
+            service.scheduleSMS(req.body.contact);
             let sql = "INSERT INTO customers SET ?";
             let query = con.query(sql, data,(err, result) => {
                 if(err) throw err;
@@ -179,6 +181,8 @@ function deleteUser(req, res) {
         });
     }
 }
+
+
 function homeRoute(req, res){
   res.send("Hello World");
 }
@@ -188,5 +192,5 @@ module.exports = {
 	getCustomerWithID: getCustomerWithID,
 	createNewUser: createNewUser,
 	updateUser: updateUser,
-	deleteUser: deleteUser
+	deleteUser: deleteUser,
 };

@@ -2,3 +2,5 @@ node_modules/
 serv.js
 promise.js
 index.html
+twilio.env
+server/services/customers/twilio.env
