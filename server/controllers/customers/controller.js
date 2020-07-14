@@ -1,11 +1,11 @@
-'use strict';
+// 'use strict';
 
-const mysql = require('mysql');
+// const mysql = require('mysql');
 const validate = require('../../validator/customers/validator.js');
 const service = require('../../services/customers/service.js');
 
-var con = service.makeDBconn();
-service.startMongoDBConn();
+// var con = service.makeDBconn();
+// service.startMongoDBConn();
 function getAllCustomers(req, res){
 
     let sql="";

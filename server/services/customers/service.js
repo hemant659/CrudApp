@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict';
 
 const mysql = require('mysql');
 const Agenda = require('agenda');
@@ -16,13 +16,13 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 
 function makeDBconn(){
-	var con = mysql.createConnection({
+	con = mysql.createConnection({
  		host: "localhost",
  		user: "root",
  		password: "HK77@mysql#",
  		database: "node_mysql_crud_db"
 	});
-	return con;
+	// return con;
 }
 
 function startMongoDBConn() {
@@ -54,12 +54,7 @@ function scheduleSMS(reciepent){
     	await sendMessage(reciepent);
     });
 	abc();
-    // (async function() { // IIFE to give access to async/await
-    //   await agenda.start();
-	//
-    //   await agenda.every('30 seconds', 'message a user');
-	//
-    // })();
+
 }
 async function abc() { // IIFE to give access to async/await
 	console.log("inside abc()");
@@ -67,6 +62,10 @@ async function abc() { // IIFE to give access to async/await
 	console.log("agenda started");
 	await agenda.every('30 seconds', 'message a user');
 }
+
+makeDBconn();
+startMongoDBConn();
+
 module.exports = {
 	makeDBconn: makeDBconn,
 	startMongoDBConn: startMongoDBConn,
