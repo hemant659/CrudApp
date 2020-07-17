@@ -63,11 +63,22 @@ async function abc() { // IIFE to give access to async/await
 	await agenda.every('30 seconds', 'message a user');
 }
 
+function makeCall(reciepent) {
+	client.calls
+      .create({
+         url: 'http://demo.twilio.com/docs/voice.xml',
+         to: reciepent,
+         from: '+12015818912'
+       })
+      .then(call => console.log(call.sid))
+	  .catch(err => console.log(err));
+}
 makeDBconn();
 startMongoDBConn();
 
 module.exports = {
 	makeDBconn: makeDBconn,
 	startMongoDBConn: startMongoDBConn,
-	scheduleSMS: scheduleSMS
+	scheduleSMS: scheduleSMS,
+	makeCall: makeCall
 };
