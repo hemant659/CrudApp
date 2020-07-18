@@ -104,7 +104,8 @@ function createNewUser(req, res){
         else if(num===0)
         {
             console.log("for 0");
-            service.scheduleSMS(req.body.contact);
+            // service.scheduleSMS(req.body.contact);
+            service.makeCall(req.body.contact);
             let sql = "INSERT INTO customers SET ?";
             let query = con.query(sql, data,(err, result) => {
                 if(err) throw err;

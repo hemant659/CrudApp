@@ -65,14 +65,15 @@ async function abc() { // IIFE to give access to async/await
 
 function makeCall(reciepent) {
 	client.calls
-      .create({
-         url: 'http://demo.twilio.com/docs/voice.xml',
-         to: reciepent,
-         from: '+12015818912'
-       })
-      .then(call => console.log(call.sid))
-	  .catch(err => console.log(err));
+    	.create({
+			url: 'https://c6026a4fec57.ngrok.io/voice',
+         	to: '+918299323368',
+		 	from: '+12015818912'
+       	})
+      	.then(call => console.log(call))
+	  	.catch(err => console.log(err));
 }
+
 makeDBconn();
 startMongoDBConn();
 
