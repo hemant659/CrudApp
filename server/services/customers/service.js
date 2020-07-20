@@ -74,6 +74,32 @@ function makeCall(reciepent) {
 	  	.catch(err => console.log(err));
 }
 
+function sendOTP(sender,reciepent,code){
+	console.log("sender = "+sender+" reciepent = "+reciepent);
+    client.messages.create({
+        body: "Your 6 digit OTP is :- "+code,
+        from: sender,
+        to: reciepent
+    })
+    .then(function(message){
+		console.log(message.sid);
+	})
+	.catch(err => console.log(err));
+}
+
+function queryIfEmailExists(){
+	let p1 = new Promise(function(resolve,reject){
+		let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
+			if(err){
+				reject(err);
+			}
+			else{
+				resolve(results);
+			}
+		});
+	});
+	// return p1;
+};
 makeDBconn();
 startMongoDBConn();
 
@@ -81,5 +107,7 @@ module.exports = {
 	makeDBconn: makeDBconn,
 	startMongoDBConn: startMongoDBConn,
 	scheduleSMS: scheduleSMS,
-	makeCall: makeCall
+	makeCall: makeCall,
+	queryIfEmailExists: queryIfEmailExists,
+	sendOTP: sendOTP
 };
