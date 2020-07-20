@@ -100,6 +100,70 @@ function queryIfEmailExists(){
 	});
 	// return p1;
 };
+function createNewUser(req,code){
+
+    var p1 = function(resolve,reject){
+        let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email, otp: code};
+        let sql = "INSERT INTO customers SET ?";
+        let query = con.query(sql, data,(err, result) => {
+            if(err) {
+                reject(err);
+            }
+             let res = JSON.stringify({"status": 200, "error": null, "response": result});
+             console.log("response = "+res);
+             resolve(res);
+        });
+        return;
+    }
+    return new Promise(p1);
+}
+function checkIfContactExists(sql,req){
+    var p1 = function(resolve,reject){
+        let q = con.query(sql, [req.body.contact],(err, results) => {
+            if(err){
+                reject(err);
+                // console.log(err);
+            }
+            else{
+                resolve(results);
+                // console.log(results);
+            }
+        });
+        return;
+    }
+    return new Promise(p1);
+}
+function updateOTPafterLoginSuccess(otp,contact){
+    let sql = "UPDATE customers SET otp=? WHERE contact=?";
+    var p1 = function(resolve,reject){
+        let q = con.query(sql, [otp,contact],(err, results) => {
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(results);
+            }
+        });
+        return;
+    }
+    return new Promise(p1);
+}
+function getOTPforContact(sql,req){
+    var p1 = function(resolve,reject){
+        let q = con.query(sql, [req.body.contact],(err, results) => {
+            if(err){
+                reject(err);
+                // console.log(err);
+            }
+            else{
+                resolve(results);
+                // console.log(results);
+            }
+        });
+        return;
+    }
+    return new Promise(p1);
+}
 makeDBconn();
 startMongoDBConn();
 
@@ -109,5 +173,9 @@ module.exports = {
 	scheduleSMS: scheduleSMS,
 	makeCall: makeCall,
 	queryIfEmailExists: queryIfEmailExists,
-	sendOTP: sendOTP
+	sendOTP: sendOTP,
+	createNewUser: createNewUser,
+	checkIfContactExists: checkIfContactExists,
+	updateOTPafterLoginSuccess: updateOTPafterLoginSuccess,
+	getOTPforContact: getOTPforContact
 };

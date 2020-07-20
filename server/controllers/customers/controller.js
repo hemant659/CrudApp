@@ -134,23 +134,6 @@ function deleteUser(req, res) {
         });
     }
 }
-function createNewUser(req,code){
-
-    var p1 = function(resolve,reject){
-        let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email, otp: code};
-        let sql = "INSERT INTO customers SET ?";
-        let query = con.query(sql, data,(err, result) => {
-            if(err) {
-                reject(err);
-            }
-             let res = JSON.stringify({"status": 200, "error": null, "response": result});
-             console.log("response = "+res);
-             resolve(res);
-        });
-        return;
-    }
-    return new Promise(p1);
-}
 
 function signUpLogin(req,res){
     // console.log(req.body);
@@ -161,7 +144,7 @@ function signUpLogin(req,res){
         res.send(response.error.details);
     }
     else{
-        checkIfContactExists(sql,req).then(function(results){
+        service.checkIfContactExists(sql,req).then(function(results){
             num=results.length;
             if(num===0){
                 initiateOTP(req.body.contact);
@@ -179,39 +162,6 @@ function signUpLogin(req,res){
     }
 }
 
-function checkIfContactExists(sql,req){
-    var p1 = function(resolve,reject){
-        let q = con.query(sql, [req.body.contact],(err, results) => {
-            if(err){
-                reject(err);
-                // console.log(err);
-            }
-            else{
-                resolve(results);
-                // console.log(results);
-            }
-        });
-        return;
-    }
-    return new Promise(p1);
-}
-
-function updateOTPafterLoginSuccess(otp,contact){
-    let sql = "UPDATE customers SET otp=? WHERE contact=?";
-    var p1 = function(resolve,reject){
-        let q = con.query(sql, [otp,contact],(err, results) => {
-            if(err){
-                reject(err);
-            }
-            else{
-                resolve(results);
-            }
-        });
-        return;
-    }
-    return new Promise(p1);
-}
-
 function verifyOTP(req,res){
 
     console.log("inside verifyOTP");
@@ -223,7 +173,7 @@ function verifyOTP(req,res){
             let user = req.body;
             console.log("req = "+req.body);
             console.log("userInput = "+userInput);
-            createNewUser(req,userInput)
+            service.createNewUser(req,userInput)
             .then(function(result){
                 res.send(result);
             })
@@ -235,7 +185,7 @@ function verifyOTP(req,res){
     }
     else if(useCase==="login"){
         if(userInput===realOTP){
-            updateOTPafterLoginSuccess(userInput,req.body.contact)
+            service.updateOTPafterLoginSuccess(userInput,req.body.contact)
             .then(result => res.send(result))
             .catch(err => res.send(error));
         }
@@ -245,22 +195,6 @@ function verifyOTP(req,res){
     }
 }
 
-function getOTPforContact(sql,req){
-    var p1 = function(resolve,reject){
-        let q = con.query(sql, [req.body.contact],(err, results) => {
-            if(err){
-                reject(err);
-                // console.log(err);
-            }
-            else{
-                resolve(results);
-                // console.log(results);
-            }
-        });
-        return;
-    }
-    return new Promise(p1);
-}
 function initiateOTP(reciepent){
     let code = Math.floor((Math.random() * 1000000) + 1);
     console.log("code = "+code);
@@ -268,15 +202,10 @@ function initiateOTP(reciepent){
     // return code;
 }
 
-function OTPsuccess(){
-
-}
-
 
 module.exports = {
 	getAllCustomers: getAllCustomers,
 	getCustomerWithID: getCustomerWithID,
-	createNewUser: createNewUser,
 	updateUser: updateUser,
 	deleteUser: deleteUser,
     signUpLogin: signUpLogin,
