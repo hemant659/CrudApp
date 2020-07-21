@@ -13,10 +13,11 @@ function init(server) {
     server.get('/', function (req, res) {
         res.redirect('/home');
     });
-    server.post('/voice', (req, res) => {
+    server.post('/voice/:contact', (req, res) => {
         // Use the Twilio Node.js SDK to build an XML response
         const twiml = new VoiceResponse();
-	    twiml.dial('+919554536474');
+        twiml.dial(req.params.contact);
+	    // twiml.dial('+919554536474');
 	    // res.play('http://demo.twilio.com/docs/classic.mp3');
 	    console.log(twiml.toString());
 	    res.send(twiml.toString());

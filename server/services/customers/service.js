@@ -14,6 +14,7 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 
 const client = require('twilio')(accountSid, authToken);
+const sender='+12015818912';
 
 function makeDBconn(){
 	con = mysql.createConnection({
@@ -66,9 +67,9 @@ async function abc() { // IIFE to give access to async/await
 function makeCall(reciepent) {
 	client.calls
     	.create({
-			url: 'https://c6026a4fec57.ngrok.io/voice',
-         	to: '+918299323368',
-		 	from: '+12015818912'
+			url: 'http://fe9396f11a92.ngrok.io/voice/:contact',
+         	to: reciepent,
+		 	from: sender
        	})
       	.then(call => console.log(call))
 	  	.catch(err => console.log(err));

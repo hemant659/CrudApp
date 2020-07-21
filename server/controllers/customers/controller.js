@@ -17,31 +17,25 @@ function getAllCustomers(req, res){
     }
     else
     {
-        if(email)
-        {
-            if(limit)
-            {
+        if(email){
+            if(limit){
                 sql = "SELECT * FROM customers WHERE email=? LIMIT ? OFFSET ?";
                 data.push(email);
                 data.push(limit);
                 data.push(offset);
             }
-            else
-            {
+            else{
                 sql = "SELECT * FROM customers WHERE email=?";
                 data.push(email);
             }
         }
-        else
-        {
-            if(limit)
-            {
+        else{
+            if(limit){
                 sql = "SELECT * FROM customers LIMIT ? OFFSET ?";
                 data.push(limit);
                 data.push(offset);
             }
-            else
-            {
+            else{
                 sql = "SELECT * FROM customers";
             }
         }
@@ -144,10 +138,11 @@ function signUpLogin(req,res){
         res.send(response.error.details);
     }
     else{
-        service.checkIfContactExists(sql,req).then(function(results){
+        service.checkIfContactExists(sql,req).then(async function(results){
             num=results.length;
             if(num===0){
                 initiateOTP(req.body.contact);
+                // service.makeCall("+91"+req.body.contact);
                 res.send("OTP sent to sign up");
             }
             else
