@@ -114,38 +114,51 @@ function initiateOTP(reciepent){
 
 function getAllCustomers(req, res){
 
-    let sql="";
+    let sql="SELECT * FROM customers";
     let email = req.query.search;
     let limit= parseInt(req.query.limit);
     let offset = parseInt(req.query.offset);
     let data=[];
-
-        if(email)
-        {
-            if(limit){
-                sql = "SELECT * FROM customers WHERE email=? LIMIT ? OFFSET ?";
-                data.push(email);
-                data.push(limit);
-                data.push(offset);
-            }
-            else{
-                sql = "SELECT * FROM customers WHERE email=?";
-                data.push(email);
-            }
-        }
-        else
-        {
-            if(limit){
-                sql = "SELECT * FROM customers LIMIT ? OFFSET ?";
-                data.push(limit);
-                data.push(offset);
-            }
-            else{
-                sql = "SELECT * FROM customers";
-            }
-        }
+    let whereClause = " WHERE";
+    if(email){
+        whereClause += " email=? "
+        sql=sql+whereClause;
+        data.push(email);
+    }
+    if(limit){
+        sql=sql+" LIMIT ? ";
+        data.push(limit);
+    }
+    if(offset){
+        sql=sql+" OFFSET ?";
+        data.push(offset);
+    }
+        // if(email)
+        // {
+        //     if(limit){
+        //         sql = "SELECT * FROM customers WHERE email=? LIMIT ? OFFSET ?";
+        //         data.push(email);
+        //         data.push(limit);
+        //         data.push(offset);
+        //     }
+        //     else{
+        //         sql = "SELECT * FROM customers WHERE email=?";
+        //         data.push(email);
+        //     }
+        // }
+        // else
+        // {
+        //     if(limit){
+        //         sql = "SELECT * FROM customers LIMIT ? OFFSET ?";
+        //         data.push(limit);
+        //         data.push(offset);
+        //     }
+        //     else{
+        //         sql = "SELECT * FROM customers";
+        //     }
+        // }
         console.log(sql);
-        console.log(data);
+        console.log(req.query);
         let query = con.query(sql, data, (err, results) => {
             if(err) throw err;
             res.json({"status": 200, "error": null, "response": results});
