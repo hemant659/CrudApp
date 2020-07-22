@@ -87,83 +87,112 @@ function sendOTP(sender,reciepent,code){
 	})
 	.catch(err => console.log(err));
 }
-
-function queryIfEmailExists(){
-	let p1 = new Promise(function(resolve,reject){
-		let q = con.query(checkIfEmailExists, [req.body.email],(err, results) => {
-			if(err){
-				reject(err);
-			}
-			else{
-				resolve(results);
-			}
-		});
-	});
-	// return p1;
-};
-function createNewUser(req,code){
-
+function checkIfEmailExists(contact){
+	console.log("Inside checkIfEmailExists");
+	let sql = "SELECT * from customers WHERE email=?";
     var p1 = function(resolve,reject){
-        let data = {name: req.body.name, address: req.body.address, contact: req.body.contact, email: req.body.email, otp: code};
-        let sql = "INSERT INTO customers SET ?";
-        let query = con.query(sql, data,(err, result) => {
-            if(err) {
+        let q = con.query(sql, [contact],(err, results) => {
+            if(err){
+				console.log(err);
                 reject(err);
+            }
+            else{
+				console.log("result for checkIfContactExists"+results);
+                resolve(results);
+            }
+        });
+        return;
+    }
+    return new Promise(p1);
+}
+
+function checkIfContactExists(contact){
+	console.log("Inside checkIfContactExists");
+	let sql = "SELECT * from customers WHERE contact=?";
+    var p1 = function(resolve,reject){
+        let q = con.query(sql, [contact],(err, results) => {
+            if(err){
+				console.log(err);
+                reject(err);
+            }
+            else{
+				console.log("result for checkIfContactExists"+results);
+                resolve(results);
+            }
+        });
+        return;
+    }
+    return new Promise(p1);
+}
+
+function createNewUser(data){
+		console.log("Inside create user");
+        let sql = "INSERT INTO customers VALUES (?,?,?,?,?,?)";
+		// console.log(data.name,data.address,data.contact,data.email,data.otp,data.isOTPverified);
+        let query = con.query(sql, [data.name,data.address,data.contact,data.email,data.otp,data.isOTPverified],(err, result) => {
+            if(err) {
+                return err;
             }
              let res = JSON.stringify({"status": 200, "error": null, "response": result});
              console.log("response = "+res);
-             resolve(res);
+             return res;
+        });
+}
+
+function updateOTPafterLoginAttempt(data){
+		console.log("Inside updateOTPafterLoginAttempt");
+    	let sql = "UPDATE customers SET otp=?, isOTPVerified=? WHERE contact=?";
+        let q = con.query(sql, [data.otp,data.isOTPverified,data.contact],(err, result) => {
+            if(err){
+                return (err);
+            }
+            else{
+				let res = JSON.stringify({"status": 200, "error": null, "response": result});
+                console.log("response = "+res);
+                return (result);
+            }
+        });
+}
+function getOTPforContact(data){
+	console.log("Inside getOTPforContact");
+	let sql = "SELECT otp FROM customers WHERE contact=?";
+    var p1 = function(resolve,reject){
+        let q = con.query(sql, [data.contact],(err, results) => {
+            if(err){
+                console.log(err);
+				reject(err);
+            }
+            else{
+				var obj=[],otp;
+				for (const [key, value] of Object.entries(results)) {
+						// console.log(`${key}: ${value}`);
+						obj=value;
+				}
+				for (const [key, value] of Object.entries(obj)) {
+						// console.log(`${key}: ${value}`);
+						otp=value;
+						console.log("otp = "+otp);
+				}
+				resolve(otp);
+            }
         });
         return;
     }
     return new Promise(p1);
 }
-function checkIfContactExists(sql,req){
-    var p1 = function(resolve,reject){
-        let q = con.query(sql, [req.body.contact],(err, results) => {
-            if(err){
-                reject(err);
-                // console.log(err);
-            }
-            else{
-                resolve(results);
-                // console.log(results);
-            }
-        });
-        return;
-    }
-    return new Promise(p1);
-}
-function updateOTPafterLoginSuccess(otp,contact){
-    let sql = "UPDATE customers SET otp=? WHERE contact=?";
-    var p1 = function(resolve,reject){
-        let q = con.query(sql, [otp,contact],(err, results) => {
-            if(err){
-                reject(err);
-            }
-            else{
-                resolve(results);
-            }
-        });
-        return;
-    }
-    return new Promise(p1);
-}
-function getOTPforContact(sql,req){
-    var p1 = function(resolve,reject){
-        let q = con.query(sql, [req.body.contact],(err, results) => {
-            if(err){
-                reject(err);
-                // console.log(err);
-            }
-            else{
-                resolve(results);
-                // console.log(results);
-            }
-        });
-        return;
-    }
-    return new Promise(p1);
+function updateOnOTPVerification(data){
+	console.log("Inside updateOnOTPVerification");
+	let sql = "UPDATE customers SET isOTPVerified=? WHERE contact=?";
+	let q = con.query(sql, [data.isOTPverified,data.contact],(err, result) => {
+		if(err){
+			return (err);
+		}
+		else{
+			let res = JSON.stringify({"status": 200, "error": null, "response": result});
+			console.log("response = "+res);
+			return (result);
+		}
+	});
 }
 makeDBconn();
 startMongoDBConn();
@@ -173,10 +202,11 @@ module.exports = {
 	startMongoDBConn: startMongoDBConn,
 	scheduleSMS: scheduleSMS,
 	makeCall: makeCall,
-	queryIfEmailExists: queryIfEmailExists,
+	checkIfEmailExists: checkIfEmailExists,
 	sendOTP: sendOTP,
 	createNewUser: createNewUser,
 	checkIfContactExists: checkIfContactExists,
-	updateOTPafterLoginSuccess: updateOTPafterLoginSuccess,
+	updateOnOTPVerification: updateOnOTPVerification,
+	updateOTPafterLoginAttempt: updateOTPafterLoginAttempt,
 	getOTPforContact: getOTPforContact
 };

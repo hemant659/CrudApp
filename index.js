@@ -3,7 +3,8 @@
 const
     express = require('express'),
     expressHandlebars = require('express-handlebars'),
-    bodyParser = require('body-parser');
+    bodyParser = require('body-parser'),
+    expressValidator = require('express-validator');
 
     let server = express();
     let config = require('./configs')
@@ -19,7 +20,7 @@ const
 
         // Returns middleware that parses json
         server.use(bodyParser.json());
-
+        // server.use(expressValidator);
         // Set up routes
         routes.init(server);
     };
