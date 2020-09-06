@@ -3,6 +3,7 @@
 const validate = require('../../validator/customers/validator.js');
 const service = require('../../services/customers/service.js');
 const sender='+12015818912';
+<<<<<<< HEAD
 let message = "Guten Abend!";
 function getCustomerWithID(req, res){
 
@@ -44,6 +45,8 @@ function deleteUser(req, res) {
             res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
         });
 }
+=======
+>>>>>>> first commit on develop
 
 function signUpLogin(req,res){
         data=req.body;
@@ -68,15 +71,12 @@ function afterOTP(result,data){
         console.log("Insise after OTP");
         console.log("Data recieved is = "+data.contact+" "+data.otp);
         let num=result.length;
-        let res;
+        let res=0;
         if(data.case==="signup"){
             res=service.createNewUser(data);
         }
-        else if(data.case==="login"&&num>0){
+        if(data.case==="login"&&num>0){
             res=service.updateOTPafterLoginAttempt(data);
-        }
-        else{
-            res=0;
         }
         return res;
 }
@@ -133,35 +133,54 @@ function getAllCustomers(req, res){
         sql=sql+" OFFSET ?";
         data.push(offset);
     }
-        // if(email)
-        // {
-        //     if(limit){
-        //         sql = "SELECT * FROM customers WHERE email=? LIMIT ? OFFSET ?";
-        //         data.push(email);
-        //         data.push(limit);
-        //         data.push(offset);
-        //     }
-        //     else{
-        //         sql = "SELECT * FROM customers WHERE email=?";
-        //         data.push(email);
-        //     }
-        // }
-        // else
-        // {
-        //     if(limit){
-        //         sql = "SELECT * FROM customers LIMIT ? OFFSET ?";
-        //         data.push(limit);
-        //         data.push(offset);
-        //     }
-        //     else{
-        //         sql = "SELECT * FROM customers";
-        //     }
-        // }
-        console.log(sql);
-        console.log(req.query);
-        let query = con.query(sql, data, (err, results) => {
+
+    console.log(sql);
+    console.log(req.query);
+    let query = con.query(sql, data, (err, results) => {
+        if(err) throw err;
+        res.json({"status": 200, "error": null, "response": results});
+    });
+}
+
+function getCustomerWithID(req, res){
+
+        let sql = "SELECT * FROM customers WHERE email=?";
+        let query = con.query(sql,[
+            req.params.id], function(err, results){
             if(err) throw err;
             res.json({"status": 200, "error": null, "response": results});
+        });
+}
+
+function updateUser(req, res){
+
+    let data = [req.body.name, req.body.address, req.body.contact, req.body.email, req.params.id];
+    let checkIfEmailExists = "SELECT * from customers WHERE email=?";
+    let num;
+    service.checkIfEmailExists(req.body.email).then(function(results){
+        num=results.length;
+        if(num===0){
+            console.log("for 0");
+            let sql = "UPDATE customers SET name=?, address=?, contact=?, email=? WHERE email=?";
+            let query = con.query(sql, data,(err, result) => {
+                if(err) throw err;
+                res.json({"status": 200, "error": null, "response": result});
+            });
+        }
+        else{
+            console.log("for >0");
+            res.send("Email already exists");
+        }
+    },function(err){
+        console.log(err);
+    });
+}
+
+function deleteUser(req, res) {
+        let sql = "DELETE FROM customers WHERE email=?";
+        let query = con.query(sql, [req.params.email], (err, results) => {
+            if(err) throw err;
+            res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
         });
 }
 
