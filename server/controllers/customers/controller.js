@@ -3,7 +3,7 @@
 const validate = require('../../validator/customers/validator.js');
 const service = require('../../services/customers/service.js');
 const sender='+12015818912';
-
+let message = "Guten Abend!";
 function getCustomerWithID(req, res){
 
         let sql = "SELECT * FROM customers WHERE email=?";
